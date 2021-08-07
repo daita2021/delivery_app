@@ -1,8 +1,9 @@
 module Api
   module V1
     class LineFoodsController < ApplicationController
-      before_action :set_food, only: %i[create] #createアクション実行前にset_food実行
+      before_action :set_food, only: %i[create replace] #createアクション実行前にset_food実行
 
+      # 仮注文一覧を返す処理
       def index
         line_foods = LineFood.active
         if line_foods.exists?
@@ -17,6 +18,7 @@ module Api
         end
       end
 
+      #仮注文を作成する処理
       def create
       # もし他店舗のアクティブな仮注文が存在したら下のjsonデータを返す
         if LineFood.active.other_restaurant(@ordered_food.restaurant.id).exists?
@@ -32,6 +34,23 @@ module Api
           render json: {
             line_food: @line_food
           },status: :created
+        else
+          render json: {}, status: :internal_server_error
+        end
+      end
+
+      #例外パターン
+      def replace
+        LineFood.active.other_restaurant(@ordered_food.restaurant.id).each do |line_food|
+          line_food.update_attribute(:active, false)
+        end
+
+        set_line_food(@ordered_food)
+
+        if @line_food.save
+          render json: {
+            line_food: @line_food
+          }, status: :created
         else
           render json: {}, status: :internal_server_error
         end
