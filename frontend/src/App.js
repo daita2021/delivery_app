@@ -11,7 +11,6 @@ function App() {
   return (
     //まずはRouterで全体を囲む
     <Router>
-      <h1>メインページ</h1>
       {/*  ルーティングさせたいコンポーネントをSwitchで囲む */}
       <Switch>
         {/* Routeで囲って実際に１ページへのルーティングを指定 exactでPATHの完全一致の場合にのみコンポーネントをレンダリング */}
